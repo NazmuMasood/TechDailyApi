@@ -29,7 +29,10 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-@d=$k7^89t0dr4$-nd^a^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'techdailyapi.herokuapp.com',
+]
 
 
 # Application definition
