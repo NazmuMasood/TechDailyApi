@@ -29,6 +29,8 @@ def apiOverview(request):
         'Content Create': '/contents/create',
         'Content Update': '/contents/update/<str:pk>',
         'Content Delete': '/contents/delete/<str:pk>',
+        'Content Create Multiple': '/contents/createAll',
+        'Content Delete All':  '/contents/deleteAll',
         '-------':'-------------------------',
         'All Owners': '/owners',
         'Owner Details': '/owners/view/<str:pk>',
@@ -37,6 +39,7 @@ def apiOverview(request):
         'Owner Delete': '/owners/delete/<str:pk>',
         '--------':'-------------------------',
         'Content SearchByKey - `id`, `owner_id`, `title`': 'contents/search/<str:key>/<str:value>/',
+        'Content SearchByOwner&Limit': 'contents/searchByOwner&Limit/<str:owner_id>/<int:limit>/',
     }
     return Response(api_urls)
 

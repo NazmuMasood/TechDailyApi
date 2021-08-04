@@ -12,7 +12,7 @@ from django.db import models
 ### ------------- 'content' end points
 @api_view(['GET'])
 def contents(request):
-    contents = Content.objects.order_by('-id').all()
+    contents = Content.objects.order_by('-pub_date').all() 
     serializer = ContentSerializer(contents, many=True)
     return Response(serializer.data)
 
@@ -47,6 +47,38 @@ def contentDelete(request, pk):
     content.delete()
     return Response(status=204)
 
+@api_view(['POST'])
+def contentCreateAll(request):
+    serializer = ContentSerializer(data=request.data, many=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+@api_view(['DELETE'])
+def contentDeleteAll(request):
+    contents = Content.objects.all()
+    contents.delete()
+    return Response(status=204)
+
+# [
+#     {
+#         "url": "https://www.androidauthority.com/google-pixel-6-live-translate-2728725/dsdds",
+#         "title": "You've heard of Live Caption, but the Pixel 6 is getting Live Translate too",
+#         "author": "Hadlee Simons",
+#         "pub_date": "2021-08-03 19:46:23.59077",
+#         "img_url": "https://cdn57.androidauthority.net/wp-content/uploads/2021/08/google-pixel-6-pro-range-scaled.jpg",
+#         "owner": 3
+#     },
+#     {
+#         "url": "https://www.androidauthority.com/google-pixel-6-live-translate-2728725/dsddfdfdfds",
+#         "title": "You've heard of Live Caption, but the Pixel 6 is getting Live Translate too",
+#         "author": "Hadlee Simons",
+#         "pub_date": "2021-08-03 19:46:23.59077",
+#         "img_url": "https://cdn57.androidauthority.net/wp-content/uploads/2021/08/google-pixel-6-pro-range-scaled.jpg",
+#         "owner": 3
+#     }
+# ]
 
 #------------------ content search by key
 @api_view(['GET'])
@@ -77,3 +109,9 @@ def contentByKey(request, key, value):
     
     else:
         return Response(status=400) 
+
+@api_view(['GET'])
+def contentByOwnerAndLimit(request, owner_id, limit):
+    contents = Content.objects.filter(owner_id=owner_id).order_by('-id')[:limit]
+    serializer = ContentSerializer(contents, many=True)
+    return Response(serializer.data)   
