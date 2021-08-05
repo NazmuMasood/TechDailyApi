@@ -12,7 +12,7 @@ from django.db import models
 ### ------------- 'content' end points
 @api_view(['GET'])
 def contents(request):
-    contents = Content.objects.order_by('-pub_date').all() 
+    contents = Content.objects.order_by('-pub_date')[:40]
     serializer = ContentSerializer(contents, many=True)
     return Response(serializer.data)
 
@@ -72,7 +72,7 @@ def contentByKey(request, key, value):
         return Response(serializer.data)
     
     elif key=='owner_id':
-        contents = Content.objects.filter(owner_id=value).order_by('-id')
+        contents = Content.objects.filter(owner_id=value).order_by('-id')[:40]
         serializer = ContentSerializer(contents, many=True)
         return Response(serializer.data)
     
@@ -83,7 +83,7 @@ def contentByKey(request, key, value):
             print(word+'\n')
             # 'or' the queries together
             query |= Q(title__icontains=word) 
-        contents = Content.objects.filter(query).order_by('-id')
+        contents = Content.objects.filter(query).order_by('-id')[:40]
 
         serializer = ContentSerializer(contents, many=True)
         return Response(serializer.data)
