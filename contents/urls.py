@@ -11,6 +11,7 @@ urlpatterns = [
     path('deleteAll/', views.contentDeleteAll, name='content-delete-all'),
 
     path('search/<str:key>/<str:value>/', views.contentByKey, name='content-by-key'),
-    path('searchByOwner&Limit/<str:owner_id>/<int:limit>', views.contentByOwnerAndLimit, name='content-by-owner'),
+    path('searchByOwner&Limit/<str:owner_id>/<int:limit>', views.contentByOwnerAndLimit, name='content-by-owner-and-limit'),
+    path('searchUrlByOwner&Limit/<str:owner_id>/<int:limit>', views.contentUrlByOwnerAndLimit, name='content-url-by-owner-and-limit'),
 ]
     

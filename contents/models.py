@@ -5,12 +5,15 @@ import importlib
 
 class Content(models.Model):
     id = models.BigAutoField(primary_key=True)
-    owner = models.ForeignKey(
+    owner_id = models.ForeignKey(
         'owners.Owner',
         to_field='id',
+        db_column='owner_id',
         on_delete=models.CASCADE
     )
-    url = models.CharField(max_length=300, null=False, unique=True)
+    url = models.CharField(max_length=300, null=False, 
+    # unique=True
+    )
     title = models.CharField(max_length=200, null=False)
     author = models.CharField(max_length=40, null=True, blank=True)
     pub_date = models.CharField(max_length=50, null=True, blank=True)

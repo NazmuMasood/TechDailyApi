@@ -61,25 +61,6 @@ def contentDeleteAll(request):
     contents.delete()
     return Response(status=204)
 
-# [
-#     {
-#         "url": "https://www.androidauthority.com/google-pixel-6-live-translate-2728725/dsdds",
-#         "title": "You've heard of Live Caption, but the Pixel 6 is getting Live Translate too",
-#         "author": "Hadlee Simons",
-#         "pub_date": "2021-08-03 19:46:23.59077",
-#         "img_url": "https://cdn57.androidauthority.net/wp-content/uploads/2021/08/google-pixel-6-pro-range-scaled.jpg",
-#         "owner": 3
-#     },
-#     {
-#         "url": "https://www.androidauthority.com/google-pixel-6-live-translate-2728725/dsddfdfdfds",
-#         "title": "You've heard of Live Caption, but the Pixel 6 is getting Live Translate too",
-#         "author": "Hadlee Simons",
-#         "pub_date": "2021-08-03 19:46:23.59077",
-#         "img_url": "https://cdn57.androidauthority.net/wp-content/uploads/2021/08/google-pixel-6-pro-range-scaled.jpg",
-#         "owner": 3
-#     }
-# ]
-
 #------------------ content search by key
 @api_view(['GET'])
 def contentByKey(request, key, value):
@@ -114,4 +95,11 @@ def contentByKey(request, key, value):
 def contentByOwnerAndLimit(request, owner_id, limit):
     contents = Content.objects.filter(owner_id=owner_id).order_by('-id')[:limit]
     serializer = ContentSerializer(contents, many=True)
-    return Response(serializer.data)   
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def contentUrlByOwnerAndLimit(request, owner_id, limit):
+    contentUrls = Content.objects.values('url').filter(owner_id=owner_id).order_by('-id')[:limit]
+    print(contentUrls)
+    # serializer = ContentSerializer(contents, many=True)
+    return Response(contentUrls) 
