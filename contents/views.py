@@ -8,13 +8,30 @@ from rest_framework.response import Response
 from django.db.models import Q, F, Value, CharField
 import re
 from django.db import models
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 
 ### ------------- 'content' end points
 @api_view(['GET'])
 def contents(request):
-    contents = Content.objects.order_by('-pub_date')[:40]
-    serializer = ContentSerializer(contents, many=True)
-    return Response(serializer.data)
+    # contents = Content.objects.order_by('-pub_date')[:40]
+
+    # Page number/size wise pagination 
+    contents = Content.objects.order_by('pub_date')
+    paginator = PageNumberPagination()
+    paginator.page_size = 10 
+    result_page = paginator.paginate_queryset(contents, request)
+    serializer = ContentSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
+
+    # Limit offset wise pagination
+    # contents = Content.objects.order_by('pub_date')
+    # paginator = LimitOffsetPagination() 
+    # result_page = paginator.paginate_queryset(contents, request)
+    # serializer = ContentSerializer(result_page, many=True)
+    # return paginator.get_paginated_response(serializer.data)
+
+    # serializer = ContentSerializer(contents, many=True)
+    # return Response(serializer.data)
 
 @api_view(['GET'])
 def contentDetails(request, pk):
