@@ -16,7 +16,7 @@ def contents(request):
     # contents = Content.objects.order_by('-pub_date')[:40]
 
     # Page number/size wise pagination 
-    contents = Content.objects.order_by('pub_date')
+    contents = Content.objects.order_by('-pub_date')
     paginator = PageNumberPagination()
     paginator.page_size = 10 
     result_page = paginator.paginate_queryset(contents, request)
