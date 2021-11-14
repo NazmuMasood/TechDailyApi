@@ -89,9 +89,15 @@ def contentByKey(request, key, value):
         return Response(serializer.data)
     
     elif key=='owner_id':
-        contents = Content.objects.filter(owner_id=value).order_by('-id')[:40]
-        serializer = ContentSerializer(contents, many=True)
-        return Response(serializer.data)
+        # contents = Content.objects.filter(owner_id=value).order_by('-id')[:40]
+        # serializer = ContentSerializer(contents, many=True)
+        # return Response(serializer.data)
+        contents = Content.objects.filter(owner_id=value).order_by('-id')
+        paginator = PageNumberPagination()
+        paginator.page_size = 10 
+        result_page = paginator.paginate_queryset(contents, request)
+        serializer = ContentSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
     
     elif key=='title':
         words = re.split(r"[^A-Za-z']+", value)
@@ -100,10 +106,17 @@ def contentByKey(request, key, value):
             print(word+'\n')
             # 'or' the queries together
             query |= Q(title__icontains=word) 
-        contents = Content.objects.filter(query).order_by('-id')[:40]
+        # contents = Content.objects.filter(query).order_by('-id')[:40]
 
-        serializer = ContentSerializer(contents, many=True)
-        return Response(serializer.data)
+        contents = Content.objects.filter(query).order_by('-id')
+        paginator = PageNumberPagination()
+        paginator.page_size = 10 
+        result_page = paginator.paginate_queryset(contents, request)
+        serializer = ContentSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+        # serializer = ContentSerializer(contents, many=True)
+        # return Response(serializer.data)
     
     else:
         return Response(status=400) 
