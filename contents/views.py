@@ -81,6 +81,9 @@ def contentDeleteAll(request):
 #------------------ content search by key
 @api_view(['GET'])
 def contentByKey(request, key, value):
+    paginator = PageNumberPagination()
+    paginator.page_size = 10 
+
     if key=='id':
         content = Content.objects.filter(id=value).first()
         serializer = ContentSerializer(content)
@@ -93,28 +96,27 @@ def contentByKey(request, key, value):
         # serializer = ContentSerializer(contents, many=True)
         # return Response(serializer.data)
         contents = Content.objects.filter(owner_id=value).order_by('-id')
-        paginator = PageNumberPagination()
-        paginator.page_size = 10 
         result_page = paginator.paginate_queryset(contents, request)
         serializer = ContentSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
-    
+     
     elif key=='title':
-        words = re.split(r"[^A-Za-z']+", value)
-        query = Q()  # empty Q object
-        for word in words:
-            print(word+'\n')
-            # 'or' the queries together
-            query |= Q(title__icontains=word) 
-        # contents = Content.objects.filter(query).order_by('-id')[:40]
+        # words = re.split(r"[^A-Za-z']+", value)
+        words = value.split()
+        if(len(words)>0):
+            query = Q()  # empty Q object
+            for word in words:
+                print("search keyword: '"+word+"'")
+                # 'or' the queries together
+                query |= Q(title__icontains=word) 
+            # contents = Content.objects.filter(query).order_by('-id')[:40]
+            contents = Content.objects.filter(query).order_by('-id')
+        else:
+            contents = []
 
-        contents = Content.objects.filter(query).order_by('-id')
-        paginator = PageNumberPagination()
-        paginator.page_size = 10 
         result_page = paginator.paginate_queryset(contents, request)
         serializer = ContentSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
-
         # serializer = ContentSerializer(contents, many=True)
         # return Response(serializer.data)
     
