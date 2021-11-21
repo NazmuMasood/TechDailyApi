@@ -35,13 +35,15 @@ def apiOverview(request):
         'All Owners': '/owners',
         'Owner Details': '/owners/view/<str:pk>',
         'Owner Create': '/owners/create',
-        'Owner Update': '/owners/update/<str:pk>',
+        'Owner Update': '/owners/update/<str:pk>', 
         'Owner Delete': '/owners/delete/<str:pk>',
         'Owner Create Multiple': '/owners/createAll',
         'Owner Delete All':  '/owners/deleteAll',
         '--------':'-------------------------',
-        'Content SearchByKey - `id`, `owner_id`, `title`': 'contents/search/<str:key>/<str:value>/',
-        'Content SearchByOwner&Limit': 'contents/searchByOwner&Limit/<str:owner_id>/<int:limit>/',
+        'Content SearchByKey - `id`, `owner_id`, `title`': '/contents/search/<str:key>/<str:value>/',
+        'Content SearchByOwner&Limit': '/contents/searchByOwner&Limit/<str:owner_id>/<int:limit>/',
+        '---------':'------------------------',
+        'Content Suggestion (builder) by key - `title`': '/contents/suggestion/<str:key>/<str:value>/',
     }
     return Response(api_urls)
 

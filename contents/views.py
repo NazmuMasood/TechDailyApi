@@ -5,7 +5,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework import serializers, status
 from rest_framework.response import Response
-from django.db.models import Q, F, Value, CharField
+from django.db.models import Q, F, Value, CharField, fields
 import re
 from django.db import models
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
@@ -101,8 +101,9 @@ def contentByKey(request, key, value):
         return paginator.get_paginated_response(serializer.data)
      
     elif key=='title':
+        contents = []
         # words = re.split(r"[^A-Za-z']+", value)
-        words = value.split()
+        words = value.split(" ")
         if(len(words)>0):
             query = Q()  # empty Q object
             for word in words:
@@ -110,9 +111,7 @@ def contentByKey(request, key, value):
                 # 'or' the queries together
                 query |= Q(title__icontains=word) 
             # contents = Content.objects.filter(query).order_by('-id')[:40]
-            contents = Content.objects.filter(query).order_by('-id')
-        else:
-            contents = []
+            contents = Content.objects.filter(query).order_by('-id')          
 
         result_page = paginator.paginate_queryset(contents, request)
         serializer = ContentSerializer(result_page, many=True)
@@ -135,3 +134,57 @@ def contentUrlByOwnerAndLimit(request, owner_id, limit):
     print(contentUrls)
     # serializer = ContentSerializer(contents, many=True)
     return Response(contentUrls) 
+
+
+#------------------ content suggestion (builder) by key
+@api_view(['GET'])
+def contentSuggestionByKey(request, key, value):
+    paginator = PageNumberPagination()
+    paginator.page_size = 10 
+
+    if key=='title':
+        suggstnList = []
+        # words = re.split(r"[^A-Za-z']+", value)
+        words = value.split()
+        if(len(words)>0):
+            query = Q()  # empty Q object
+            for word in words:
+                print("search keyword: '"+word+"'")
+                query |= Q(title__icontains=word) 
+            titleList = Content.objects.values_list('title', flat=True).filter(query).order_by('-id')
+            
+            for title in titleList:
+                print('full title: '+title)
+                
+                matchedKeyword = value
+                for item in value.split():
+                    if(title.lower().find(item.lower())!=-1):
+                        matchedKeyword = item
+                        break
+                print(f"keyword: '{matchedKeyword}'")
+
+                tokenized = re.split(r"([a-zA-Z]*(?i)"+matchedKeyword+"[a-zA-Z]*'?s?,?)",title)
+                # for item in tokenized:
+                #     print(f"'{item}'")
+                matchedWord = tokenized[1]
+                matchedWordEndIndex = title.index(matchedWord) + len(matchedWord)
+                fullTrailing = title[matchedWordEndIndex:]
+                print(f"full trailing: '{title[matchedWordEndIndex:]}'")
+                if(len(fullTrailing.split()) > 2):
+                    fullTrailingSplitted = fullTrailing.split()
+                    # print(f"length of fullTrailingSplitted[]: {str(len(fullTrailingSplitted))}")
+                    trailing = fullTrailingSplitted[0] +" "+ fullTrailingSplitted[1]
+                    print(f"final trailing: '{trailing}'")
+                    finalTitleSuggstn = matchedWord +" "+ trailing
+                else:
+                    finalTitleSuggstn = matchedWord +" "+ fullTrailing
+                print(f"final title suggstn: '{finalTitleSuggstn}'\n")
+
+                if finalTitleSuggstn not in suggstnList:
+                    suggstnList.append(finalTitleSuggstn) 
+
+        result_page = paginator.paginate_queryset(suggstnList, request)
+        return paginator.get_paginated_response(result_page) 
+
+    else:
+        return Response(status=400)  
